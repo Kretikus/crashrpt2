@@ -12,6 +12,8 @@ be found in the Authors.txt file in the root of the source tree.
 #include "ScreenCap.h"
 #include "Utility.h"
 
+#include "zlib.h"
+
 // Disable warning C4611: interaction between '_setjmp' and C++ object destruction is non-portable
 #pragma warning(disable:4611)
 
