@@ -11,6 +11,8 @@
 
 %include "vpx_ports/x86_abi_support.asm"
 
+SECTION .text
+
 ; void vp8_temporal_filter_apply_sse2 | arg
 ;  (unsigned char  *frame1,           |  0
 ;   unsigned int    stride,           |  1
@@ -20,7 +22,7 @@
 ;   int             filter_weight,    |  5
 ;   unsigned int   *accumulator,      |  6
 ;   unsigned short *count)            |  7
-global sym(vp8_temporal_filter_apply_sse2)
+globalsym(vp8_temporal_filter_apply_sse2)
 sym(vp8_temporal_filter_apply_sse2):
 
     push        rbp
@@ -50,7 +52,7 @@ sym(vp8_temporal_filter_apply_sse2):
         ; 0x8000 >> (16 - strength)
         mov         rdx,            16
         sub         rdx,            arg(4) ; 16 - strength
-        movd        xmm4,           rdx    ; can't use rdx w/ shift
+        movq        xmm4,           rdx    ; can't use rdx w/ shift
         movdqa      xmm5,           [GLOBAL(_const_top_bit)]
         psrlw       xmm5,           xmm4
         movdqa      [rsp + rounding_bit], xmm5
@@ -203,5 +205,5 @@ align 16
 _const_top_bit:
     times 8 dw 1<<15
 align 16
-_const_16w
+_const_16w:
     times 8 dw 16

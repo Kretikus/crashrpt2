@@ -8,64 +8,55 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-
-#ifndef __INC_VP8D_H
-#define __INC_VP8D_H
-
+#ifndef VPX_VP8_COMMON_ONYXD_H_
+#define VPX_VP8_COMMON_ONYXD_H_
 
 /* Create/destroy static data structures. */
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 #include "vpx_scale/yv12config.h"
 #include "ppflags.h"
 #include "vpx_ports/mem.h"
 #include "vpx/vpx_codec.h"
+#include "vpx/vp8.h"
 
-    struct VP8D_COMP;
+struct VP8D_COMP;
+struct VP8Common;
 
-    typedef struct
-    {
-        int     Width;
-        int     Height;
-        int     Version;
-        int     postprocess;
-        int     max_threads;
-        int     error_concealment;
-        int     input_fragments;
-    } VP8D_CONFIG;
-    typedef enum
-    {
-        VP8_LAST_FLAG = 1,
-        VP8_GOLD_FLAG = 2,
-        VP8_ALT_FLAG = 4
-    } VP8_REFFRAME;
+typedef struct {
+  int Width;
+  int Height;
+  int Version;
+  int postprocess;
+  int max_threads;
+  int error_concealment;
+} VP8D_CONFIG;
 
-    typedef enum
-    {
-        VP8D_OK = 0
-    } VP8D_SETTING;
+typedef enum { VP8D_OK = 0 } VP8D_SETTING;
 
-    void vp8dx_initialize(void);
+void vp8dx_initialize(void);
 
-    void vp8dx_set_setting(struct VP8D_COMP* comp, VP8D_SETTING oxst, int x);
+void vp8dx_set_setting(struct VP8D_COMP *comp, VP8D_SETTING oxst, int x);
 
-    int vp8dx_get_setting(struct VP8D_COMP* comp, VP8D_SETTING oxst);
+int vp8dx_get_setting(struct VP8D_COMP *comp, VP8D_SETTING oxst);
 
-    int vp8dx_receive_compressed_data(struct VP8D_COMP* comp, unsigned long size, const unsigned char *dest, int64_t time_stamp);
-    int vp8dx_get_raw_frame(struct VP8D_COMP* comp, YV12_BUFFER_CONFIG *sd, int64_t *time_stamp, int64_t *time_end_stamp, vp8_ppflags_t *flags);
+int vp8dx_receive_compressed_data(struct VP8D_COMP *pbi, int64_t time_stamp);
+int vp8dx_get_raw_frame(struct VP8D_COMP *pbi, YV12_BUFFER_CONFIG *sd,
+                        int64_t *time_stamp, int64_t *time_end_stamp,
+                        vp8_ppflags_t *flags);
+int vp8dx_references_buffer(struct VP8Common *oci, int ref_frame);
 
-    vpx_codec_err_t vp8dx_get_reference(struct VP8D_COMP* comp, VP8_REFFRAME ref_frame_flag, YV12_BUFFER_CONFIG *sd);
-    vpx_codec_err_t vp8dx_set_reference(struct VP8D_COMP* comp, VP8_REFFRAME ref_frame_flag, YV12_BUFFER_CONFIG *sd);
-
-    struct VP8D_COMP* vp8dx_create_decompressor(VP8D_CONFIG *oxcf);
-
-    void vp8dx_remove_decompressor(struct VP8D_COMP* comp);
+vpx_codec_err_t vp8dx_get_reference(struct VP8D_COMP *pbi,
+                                    enum vpx_ref_frame_type ref_frame_flag,
+                                    YV12_BUFFER_CONFIG *sd);
+vpx_codec_err_t vp8dx_set_reference(struct VP8D_COMP *pbi,
+                                    enum vpx_ref_frame_type ref_frame_flag,
+                                    YV12_BUFFER_CONFIG *sd);
+int vp8dx_get_quantizer(const struct VP8D_COMP *pbi);
 
 #ifdef __cplusplus
 }
 #endif
 
-
-#endif
+#endif  // VPX_VP8_COMMON_ONYXD_H_

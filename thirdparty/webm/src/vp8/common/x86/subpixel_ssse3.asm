@@ -15,6 +15,7 @@
 %define VP8_FILTER_WEIGHT 128
 %define VP8_FILTER_SHIFT  7
 
+SECTION .text
 
 ;/************************************************************************************
 ; Notes: filter_block1d_h6 applies a 6 tap filter horizontally to the input pixels. The
@@ -34,7 +35,7 @@
 ;    unsigned int    output_height,
 ;    unsigned int    vp8_filter_index
 ;)
-global sym(vp8_filter_block1d8_h6_ssse3)
+globalsym(vp8_filter_block1d8_h6_ssse3)
 sym(vp8_filter_block1d8_h6_ssse3):
     push        rbp
     mov         rbp, rsp
@@ -177,7 +178,7 @@ vp8_filter_block1d8_h4_ssse3:
 ;    unsigned int    output_height,
 ;    unsigned int    vp8_filter_index
 ;)
-global sym(vp8_filter_block1d16_h6_ssse3)
+globalsym(vp8_filter_block1d16_h6_ssse3)
 sym(vp8_filter_block1d16_h6_ssse3):
     push        rbp
     mov         rbp, rsp
@@ -284,7 +285,7 @@ sym(vp8_filter_block1d16_h6_ssse3):
 ;    unsigned int    output_height,
 ;    unsigned int    vp8_filter_index
 ;)
-global sym(vp8_filter_block1d4_h6_ssse3)
+globalsym(vp8_filter_block1d4_h6_ssse3)
 sym(vp8_filter_block1d4_h6_ssse3):
     push        rbp
     mov         rbp, rsp
@@ -352,6 +353,7 @@ sym(vp8_filter_block1d4_h6_ssse3):
     pop rdi
     pop rsi
     RESTORE_GOT
+    RESTORE_XMM
     UNSHADOW_ARGS
     pop         rbp
     ret
@@ -413,7 +415,7 @@ sym(vp8_filter_block1d4_h6_ssse3):
 ;    unsigned int   output_height,
 ;    unsigned int   vp8_filter_index
 ;)
-global sym(vp8_filter_block1d16_v6_ssse3)
+globalsym(vp8_filter_block1d16_v6_ssse3)
 sym(vp8_filter_block1d16_v6_ssse3):
     push        rbp
     mov         rbp, rsp
@@ -601,7 +603,7 @@ sym(vp8_filter_block1d16_v6_ssse3):
 ;    unsigned int   output_height,
 ;    unsigned int   vp8_filter_index
 ;)
-global sym(vp8_filter_block1d8_v6_ssse3)
+globalsym(vp8_filter_block1d8_v6_ssse3)
 sym(vp8_filter_block1d8_v6_ssse3):
     push        rbp
     mov         rbp, rsp
@@ -741,7 +743,7 @@ sym(vp8_filter_block1d8_v6_ssse3):
 ;    unsigned int   output_height,
 ;    unsigned int   vp8_filter_index
 ;)
-global sym(vp8_filter_block1d4_v6_ssse3)
+globalsym(vp8_filter_block1d4_v6_ssse3)
 sym(vp8_filter_block1d4_v6_ssse3):
     push        rbp
     mov         rbp, rsp
@@ -880,7 +882,7 @@ sym(vp8_filter_block1d4_v6_ssse3):
 ;    unsigned char *dst_ptr,
 ;    int dst_pitch
 ;)
-global sym(vp8_bilinear_predict16x16_ssse3)
+globalsym(vp8_bilinear_predict16x16_ssse3)
 sym(vp8_bilinear_predict16x16_ssse3):
     push        rbp
     mov         rbp, rsp
@@ -1143,7 +1145,7 @@ sym(vp8_bilinear_predict16x16_ssse3):
 ;    unsigned char *dst_ptr,
 ;    int dst_pitch
 ;)
-global sym(vp8_bilinear_predict8x8_ssse3)
+globalsym(vp8_bilinear_predict8x8_ssse3)
 sym(vp8_bilinear_predict8x8_ssse3):
     push        rbp
     mov         rbp, rsp
@@ -1290,6 +1292,8 @@ sym(vp8_bilinear_predict8x8_ssse3):
         movq        xmm7,       XMMWORD PTR [rsp+96]
         punpcklbw   xmm5,       xmm6
 
+        ; Because the source register (xmm0) is always treated as signed by
+        ; pmaddubsw, the constant '128' is treated as '-128'.
         pmaddubsw   xmm1,       xmm0
         pmaddubsw   xmm2,       xmm0
 
@@ -1318,6 +1322,10 @@ sym(vp8_bilinear_predict8x8_ssse3):
         psraw       xmm5,       VP8_FILTER_SHIFT
 
         psraw       xmm6,       VP8_FILTER_SHIFT
+
+        ; Having multiplied everything by '-128' and obtained negative
+        ; numbers, the unsigned saturation truncates those values to 0,
+        ; resulting in incorrect handling of xoffset == 0 && yoffset == 0
         packuswb    xmm1,       xmm1
 
         packuswb    xmm2,       xmm2

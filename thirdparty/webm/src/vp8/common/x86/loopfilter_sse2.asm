@@ -276,6 +276,8 @@
 
 %endmacro
 
+SECTION .text
+
 %if ABI_IS_32BIT
 
 ;void vp8_loop_filter_horizontal_edge_sse2
@@ -286,7 +288,7 @@
 ;    const char    *limit,
 ;    const char    *thresh,
 ;)
-global sym(vp8_loop_filter_horizontal_edge_sse2)
+globalsym(vp8_loop_filter_horizontal_edge_sse2)
 sym(vp8_loop_filter_horizontal_edge_sse2):
     push        rbp
     mov         rbp, rsp
@@ -334,7 +336,7 @@ sym(vp8_loop_filter_horizontal_edge_sse2):
 ;    const char    *thresh,
 ;    int            count
 ;)
-global sym(vp8_loop_filter_horizontal_edge_uv_sse2)
+globalsym(vp8_loop_filter_horizontal_edge_uv_sse2)
 sym(vp8_loop_filter_horizontal_edge_uv_sse2):
     push        rbp
     mov         rbp, rsp
@@ -561,7 +563,7 @@ sym(vp8_loop_filter_horizontal_edge_uv_sse2):
 ;    const char    *limit,
 ;    const char    *thresh,
 ;)
-global sym(vp8_mbloop_filter_horizontal_edge_sse2)
+globalsym(vp8_mbloop_filter_horizontal_edge_sse2)
 sym(vp8_mbloop_filter_horizontal_edge_sse2):
     push        rbp
     mov         rbp, rsp
@@ -607,7 +609,7 @@ sym(vp8_mbloop_filter_horizontal_edge_sse2):
 ;    const char    *thresh,
 ;    unsigned char *v
 ;)
-global sym(vp8_mbloop_filter_horizontal_edge_uv_sse2)
+globalsym(vp8_mbloop_filter_horizontal_edge_uv_sse2)
 sym(vp8_mbloop_filter_horizontal_edge_uv_sse2):
     push        rbp
     mov         rbp, rsp
@@ -928,7 +930,7 @@ sym(vp8_mbloop_filter_horizontal_edge_uv_sse2):
 ;    const char    *limit,
 ;    const char    *thresh,
 ;)
-global sym(vp8_loop_filter_vertical_edge_sse2)
+globalsym(vp8_loop_filter_vertical_edge_sse2)
 sym(vp8_loop_filter_vertical_edge_sse2):
     push        rbp
     mov         rbp, rsp
@@ -958,7 +960,7 @@ sym(vp8_loop_filter_vertical_edge_sse2):
         ; start work on filters
         B_FILTER 2
 
-        ; tranpose and write back - only work on q1, q0, p0, p1
+        ; transpose and write back - only work on q1, q0, p0, p1
         BV_TRANSPOSE
         ; store 16-line result
 
@@ -993,7 +995,7 @@ sym(vp8_loop_filter_vertical_edge_sse2):
 ;    const char    *thresh,
 ;    unsigned char *v
 ;)
-global sym(vp8_loop_filter_vertical_edge_uv_sse2)
+globalsym(vp8_loop_filter_vertical_edge_uv_sse2)
 sym(vp8_loop_filter_vertical_edge_uv_sse2):
     push        rbp
     mov         rbp, rsp
@@ -1023,7 +1025,7 @@ sym(vp8_loop_filter_vertical_edge_uv_sse2):
         ; start work on filters
         B_FILTER 2
 
-        ; tranpose and write back - only work on q1, q0, p0, p1
+        ; transpose and write back - only work on q1, q0, p0, p1
         BV_TRANSPOSE
 
         lea         rdi,        [rsi + rax]             ; rdi points to row +1 for indirect addressing
@@ -1142,7 +1144,7 @@ sym(vp8_loop_filter_vertical_edge_uv_sse2):
 ;    const char    *limit,
 ;    const char    *thresh,
 ;)
-global sym(vp8_mbloop_filter_vertical_edge_sse2)
+globalsym(vp8_mbloop_filter_vertical_edge_sse2)
 sym(vp8_mbloop_filter_vertical_edge_sse2):
     push        rbp
     mov         rbp, rsp
@@ -1209,7 +1211,7 @@ sym(vp8_mbloop_filter_vertical_edge_sse2):
 ;    const char    *thresh,
 ;    unsigned char *v
 ;)
-global sym(vp8_mbloop_filter_vertical_edge_uv_sse2)
+globalsym(vp8_mbloop_filter_vertical_edge_uv_sse2)
 sym(vp8_mbloop_filter_vertical_edge_uv_sse2):
     push        rbp
     mov         rbp, rsp
@@ -1269,7 +1271,7 @@ sym(vp8_mbloop_filter_vertical_edge_uv_sse2):
 ;    int  src_pixel_step,
 ;    const char *blimit,
 ;)
-global sym(vp8_loop_filter_simple_horizontal_edge_sse2)
+globalsym(vp8_loop_filter_simple_horizontal_edge_sse2)
 sym(vp8_loop_filter_simple_horizontal_edge_sse2):
     push        rbp
     mov         rbp, rsp
@@ -1374,7 +1376,7 @@ sym(vp8_loop_filter_simple_horizontal_edge_sse2):
 ;    int  src_pixel_step,
 ;    const char *blimit,
 ;)
-global sym(vp8_loop_filter_simple_vertical_edge_sse2)
+globalsym(vp8_loop_filter_simple_vertical_edge_sse2)
 sym(vp8_loop_filter_simple_vertical_edge_sse2):
     push        rbp         ; save old base pointer value.
     mov         rbp, rsp    ; set new base pointer value.

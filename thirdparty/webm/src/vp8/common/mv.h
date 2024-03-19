@@ -8,21 +8,26 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-
-#ifndef __INC_MV_H
-#define __INC_MV_H
+#ifndef VPX_VP8_COMMON_MV_H_
+#define VPX_VP8_COMMON_MV_H_
 #include "vpx/vpx_integer.h"
 
-typedef struct
-{
-    short row;
-    short col;
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct {
+  short row;
+  short col;
 } MV;
 
-typedef union int_mv
-{
-    uint32_t  as_int;
-    MV        as_mv;
-} int_mv;        /* facilitates faster equality tests and copies */
+typedef union int_mv {
+  uint32_t as_int;
+  MV as_mv;
+} int_mv; /* facilitates faster equality tests and copies */
 
+#ifdef __cplusplus
+}  // extern "C"
 #endif
+
+#endif  // VPX_VP8_COMMON_MV_H_

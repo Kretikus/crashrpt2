@@ -78,20 +78,81 @@
 %endif
 
 
+; LIBVPX_YASM_WIN64
+; Set LIBVPX_YASM_WIN64 if output is Windows 64bit so the code will work if x64
+; or win64 is defined on the Yasm command line.
+%ifidn __OUTPUT_FORMAT__,win64
+%define LIBVPX_YASM_WIN64 1
+%elifidn __OUTPUT_FORMAT__,x64
+%define LIBVPX_YASM_WIN64 1
+%else
+%define LIBVPX_YASM_WIN64 0
+%endif
+
+; Declare groups of platforms
+%ifidn   __OUTPUT_FORMAT__,elf32
+  %define LIBVPX_ELF 1
+%elifidn   __OUTPUT_FORMAT__,elfx32
+  %define LIBVPX_ELF 1
+%elifidn   __OUTPUT_FORMAT__,elf64
+  %define LIBVPX_ELF 1
+%else
+  %define LIBVPX_ELF 0
+%endif
+
+%ifidn __OUTPUT_FORMAT__,macho32
+  %define LIBVPX_MACHO 1
+%elifidn __OUTPUT_FORMAT__,macho64
+  %define LIBVPX_MACHO 1
+%else
+  %define LIBVPX_MACHO 0
+%endif
+
 ; sym()
 ; Return the proper symbol name for the target ABI.
 ;
 ; Certain ABIs, notably MS COFF and Darwin MACH-O, require that symbols
 ; with C linkage be prefixed with an underscore.
 ;
-%ifidn   __OUTPUT_FORMAT__,elf32
-%define sym(x) x
-%elifidn __OUTPUT_FORMAT__,elf64
-%define sym(x) x
-%elifidn __OUTPUT_FORMAT__,x64
-%define sym(x) x
+%if LIBVPX_ELF || LIBVPX_YASM_WIN64
+  %define sym(x) x
 %else
-%define sym(x) _ %+ x
+  ; Mach-O / COFF
+  %define sym(x) _ %+ x
+%endif
+
+; globalsym()
+; Return a global declaration with the proper decoration for the target ABI.
+;
+; When CHROMIUM is defined, include attributes to hide the symbol from the
+; global namespace.
+;
+; Chromium doesn't like exported global symbols due to symbol clashing with
+; plugins among other things.
+;
+; Requires Chromium's patched copy of yasm:
+;   http://src.chromium.org/viewvc/chrome?view=rev&revision=73761
+;   http://www.tortall.net/projects/yasm/ticket/236
+; or nasm > 2.14.
+;
+%ifdef CHROMIUM
+  %ifdef __NASM_VER__
+    %if __NASM_VERSION_ID__ < 0x020e0000 ; 2.14
+      ; nasm < 2.14 does not support :private_extern directive
+      %fatal Must use nasm 2.14 or newer
+    %endif
+  %endif
+
+  %if LIBVPX_ELF
+    %define globalsym(x) global sym(x) %+ :function hidden
+  %elif LIBVPX_MACHO
+    %define globalsym(x) global sym(x) %+ :private_extern
+  %else
+    ; COFF / PE32+
+    %define globalsym(x) global sym(x)
+  %endif
+%else
+  %define globalsym(x) global sym(x)
 %endif
 
 ; arg()
@@ -102,7 +163,7 @@
 %else
   ; 64 bit ABI passes arguments in registers. This is a workaround to get up
   ; and running quickly. Relies on SHADOW_ARGS_TO_STACK
-  %ifidn __OUTPUT_FORMAT__,x64
+  %if LIBVPX_YASM_WIN64
     %define arg(x) [rbp+16+8*x]
   %else
     %define arg(x) [rbp-8-8*x]
@@ -149,7 +210,6 @@
 %if ABI_IS_32BIT
   %if CONFIG_PIC=1
   %ifidn __OUTPUT_FORMAT__,elf32
-    %define GET_GOT_SAVE_ARG 1
     %define WRT_PLT wrt ..plt
     %macro GET_GOT 1
       extern _GLOBAL_OFFSET_TABLE_
@@ -168,7 +228,6 @@
       %define RESTORE_GOT pop %1
     %endmacro
   %elifidn __OUTPUT_FORMAT__,macho32
-    %define GET_GOT_SAVE_ARG 1
     %macro GET_GOT 1
       push %1
       call %%get_got
@@ -181,7 +240,16 @@
     %endmacro
   %endif
   %endif
-  %define HIDDEN_DATA(x) x
+
+  %ifdef CHROMIUM
+    %ifidn __OUTPUT_FORMAT__,macho32
+      %define HIDDEN_DATA(x) x:private_extern
+    %else
+      %define HIDDEN_DATA(x) x
+    %endif
+  %else
+    %define HIDDEN_DATA(x) x
+  %endif
 %else
   %macro GET_GOT 1
   %endmacro
@@ -189,6 +257,15 @@
   %ifidn __OUTPUT_FORMAT__,elf64
     %define WRT_PLT wrt ..plt
     %define HIDDEN_DATA(x) x:data hidden
+  %elifidn __OUTPUT_FORMAT__,elfx32
+    %define WRT_PLT wrt ..plt
+    %define HIDDEN_DATA(x) x:data hidden
+  %elifidn __OUTPUT_FORMAT__,macho64
+    %ifdef CHROMIUM
+      %define HIDDEN_DATA(x) x:private_extern
+    %else
+      %define HIDDEN_DATA(x) x
+    %endif
   %else
     %define HIDDEN_DATA(x) x
   %endif
@@ -210,7 +287,7 @@
   %endm
   %define UNSHADOW_ARGS
 %else
-%ifidn __OUTPUT_FORMAT__,x64
+%if LIBVPX_YASM_WIN64
   %macro SHADOW_ARGS_TO_STACK 1 ; argc
     %if %1 > 0
         mov arg(0),rcx
@@ -266,7 +343,7 @@
 ; Win64 ABI requires 16 byte stack alignment, but then pushes an 8 byte return
 ; value. Typically we follow this up with 'push rbp' - re-aligning the stack -
 ; but in some cases this is not done and unaligned movs must be used.
-%ifidn __OUTPUT_FORMAT__,x64
+%if LIBVPX_YASM_WIN64
 %macro SAVE_XMM 1-2 a
   %if %1 < 6
     %error Only xmm registers 6-15 must be preserved
@@ -330,5 +407,19 @@ section .text
 %elifidn __OUTPUT_FORMAT__,elf64
 section .note.GNU-stack noalloc noexec nowrite progbits
 section .text
+%elifidn __OUTPUT_FORMAT__,elfx32
+section .note.GNU-stack noalloc noexec nowrite progbits
+section .text
 %endif
 
+; On Android platforms use lrand48 when building postproc routines. Prior to L
+; rand() was not available.
+%if CONFIG_POSTPROC=1 || CONFIG_VP9_POSTPROC=1
+%ifdef __ANDROID__
+extern sym(lrand48)
+%define LIBVPX_RAND lrand48
+%else
+extern sym(rand)
+%define LIBVPX_RAND rand
+%endif
+%endif ; CONFIG_POSTPROC || CONFIG_VP9_POSTPROC

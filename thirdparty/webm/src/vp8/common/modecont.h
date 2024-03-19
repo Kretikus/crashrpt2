@@ -8,10 +8,17 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
+#ifndef VPX_VP8_COMMON_MODECONT_H_
+#define VPX_VP8_COMMON_MODECONT_H_
 
-#ifndef __INC_MODECONT_H
-#define __INC_MODECONT_H
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 extern const int vp8_mode_contexts[6][4];
 
+#ifdef __cplusplus
+}  // extern "C"
 #endif
+
+#endif  // VPX_VP8_COMMON_MODECONT_H_
