@@ -1,0 +1,11 @@
+Um auf die neuste libpng zu aktualisieren, 
+kann man das neueste Libpng in dieses Verzeichnis kopieren,
+*AUSSER* die CMakeLists.txt
+
+Dann die arm, mips, powerpc, contrib und tests Verzeichnis löschen.
+
+In der originalen CMakeLists prüfen, ob die Liste der Quelldateien um weitere Dateien ergänzt wurde
+um dann die mitgelieferte CMakeLists.txt anzupassen.
+
+
+

@@ -365,7 +365,7 @@ BOOL CImage::LoadBitmapFromPNGFile(LPTSTR szFileName)
     if (!png_ptr)
         goto cleanup;
 
-    if (setjmp(png_ptr->jmpbuf))
+    if (setjmp(png_jmpbuf(png_ptr)))
         goto cleanup;
 
     info_ptr = png_create_info_struct(png_ptr);
@@ -389,7 +389,8 @@ BOOL CImage::LoadBitmapFromPNGFile(LPTSTR szFileName)
     width = png_get_image_width(png_ptr, info_ptr);
     height = png_get_image_height(png_ptr, info_ptr);
 
-    if(info_ptr->channels==3)
+        
+    if(png_get_channels(png_ptr, info_ptr) == 3)
     {
         png_set_strip_16(png_ptr);
         png_set_packing(png_ptr);
@@ -408,14 +409,14 @@ BOOL CImage::LoadBitmapFromPNGFile(LPTSTR szFileName)
     pBMI = (BITMAPINFO*)new BYTE[sizeof(BITMAPINFO)+256*4];
     memset(pBMI, 0, sizeof(BITMAPINFO)+256*4);
     pBMI->bmiHeader.biSize = sizeof(BITMAPINFO);
-    pBMI->bmiHeader.biBitCount = 8*info_ptr->channels;
+    pBMI->bmiHeader.biBitCount = 8 * png_get_channels(png_ptr, info_ptr);
     pBMI->bmiHeader.biWidth = width;
     pBMI->bmiHeader.biHeight = height;
     pBMI->bmiHeader.biPlanes = 1;
     pBMI->bmiHeader.biCompression = BI_RGB;
     pBMI->bmiHeader.biSizeImage = rowbytes*height;
 
-    if( info_ptr->channels == 1 )
+    if(png_get_channels(png_ptr, info_ptr) == 1 )
     {
         RGBQUAD* palette = pBMI->bmiColors;
 
@@ -431,7 +432,7 @@ BOOL CImage::LoadBitmapFromPNGFile(LPTSTR szFileName)
 
     for(y=height-1; y>=0; y--)
     {
-        png_read_rows(png_ptr, &row, png_bytepp_NULL, 1);
+        png_read_rows(png_ptr, &row, nullptr, 1);
 
         {
             CAutoLock lock(&m_csLock);
