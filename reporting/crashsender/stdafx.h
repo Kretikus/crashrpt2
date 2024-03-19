@@ -21,8 +21,10 @@ be found in the Authors.txt file in the root of the source tree.
 #define _WIN32_IE	0x0600
 #define _RICHEDIT_VER	0x0200
 
+#ifndef _OFF_T_DEFINED
 typedef __int64 off_t, _off_t;
 #define _OFF_T_DEFINED
+#endif
 
 #include <errno.h>
 #include <winsock2.h>
