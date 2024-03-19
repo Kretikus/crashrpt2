@@ -1,1 +1,4 @@
 *.aps
+*.obj
+build/
+thirdparty/webm/src/build/
