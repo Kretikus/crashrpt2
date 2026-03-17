@@ -1,5 +1,5 @@
 # Preserve backwards compatibility
-cmake_minimum_required (VERSION 3.1)
+cmake_minimum_required (VERSION 4.0)
 project (CrashRpt)
 
 # CrashRpt version number
@@ -137,6 +137,7 @@ add_subdirectory("thirdparty/minizip")
 add_subdirectory("thirdparty/zlib")
 add_subdirectory("thirdparty/libogg")
 add_subdirectory("thirdparty/libtheora")
+add_subdirectory("thirdparty/CPP-SMTPClient-library")
 
 # Copy data in binary directory
 

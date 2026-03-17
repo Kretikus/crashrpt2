@@ -125,6 +125,7 @@ protected:
 	// Sends E-mail message to the specified SMTP server.
 	// Returns zero on success, otherwise non-zero.
     int SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg);
+    int SendEmailToRecipientWithOpportunisticSecureSMTPClient(CString sSmtpServer, CEmailMessage* msg);
 
 	// Validates E-mail address syntax.
 	// Returns zero on success, otherwise non-zero.
@@ -161,6 +162,9 @@ protected:
 	CString m_sPassword;     // Password (used for SMTP authentication).
 	CEmailMessage* m_msg;    // Pointer to E-mail message being sent.
     AssyncNotification* m_scn; // Synchronization object.
+
+    class Impl;
+    std::unique_ptr<Impl> m_pImpl; // Pimpl idiom to hide implementation details.
 };
 
 

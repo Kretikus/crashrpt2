@@ -19,6 +19,12 @@ be found in the Authors.txt file in the root of the source tree.
 #include "strconv.h"
 #include "Base64.h"
 
+#include <cpp/forcedsecuresmtpclient.hpp>
+#include <cpp/opportunisticsecuresmtpclient.hpp>
+#include <cpp/plaintextmessage.hpp>
+
+#include <fstream>
+
 //----------------------------------------------------------
 // CEmailMessage impl
 //----------------------------------------------------------
@@ -132,7 +138,14 @@ void CEmailMessage::SetText(LPCTSTR szText)
 // CSmtpClient impl
 //----------------------------------------------------------
 
+class CSmtpClient::Impl {
+public:
+    std::unique_ptr<jed_utils::SecureSMTPClientBase> smtpClient;
+};
+
+
 CSmtpClient::CSmtpClient()
+    : m_pImpl(std::make_unique<Impl>())
 {
     // Initialize WinSock library
     WSADATA wsaData;
@@ -310,9 +323,76 @@ int CSmtpClient::ResolveSmtpServerName(LPCTSTR szEmailAddress, std::map<WORD, CS
     return 1;
 }
 
+int CSmtpClient::SendEmailToRecipientWithOpportunisticSecureSMTPClient(CString sSmtpServer, CEmailMessage* msg)
+{
+    CT2A ascii(sSmtpServer);
+    if (m_nPort == 587) {
+        m_pImpl->smtpClient = std::make_unique<jed_utils::OpportunisticSecureSMTPClient>(ascii, m_nPort);
+    }
+    else {
+        m_pImpl->smtpClient = std::make_unique<jed_utils::ForcedSecureSMTPClient>(ascii, m_nPort);
+    }
+    CT2A login(m_sLogin);
+    CT2A password(m_sPassword);
+    m_pImpl->smtpClient->setCredentials(jed_utils::Credential(login, password));
+
+    std::vector<jed_utils::MessageAddress> recipientAddresses;
+    for (int i = 0; i < msg->GetRecipientCount(); ++i) {
+        recipientAddresses.push_back(jed_utils::MessageAddress(CT2A(msg->GetRecipientAddress(i))));
+    }
+
+
+    std::vector<jed_utils::Attachment> attachments;
+    // Check that all attachments exist
+    int i;
+    for (i = 0; i < msg->GetAttachmentCount(); i++)
+    {
+        CString sFileName = msg->GetAttachment(i);
+        if (CheckAttachmentOK(sFileName) != 0)
+        {
+            CString sStatusMsg;
+            // Some attachment file does not present
+            sStatusMsg.Format(_T("Attachment not found: %s"), (LPCTSTR)sFileName);
+            m_scn->SetProgress(sStatusMsg, 1);
+            return 2; // critical error
+        }
+        CString displayName = msg->GetAttachment(i);
+        displayName.Replace('/', '\\');
+        CString sDisplayName = displayName.Mid(displayName.ReverseFind('\\') + 1);
+
+        attachments.push_back(jed_utils::Attachment(CT2A(sFileName), CT2A(sDisplayName), CT2A(sFileName)));
+    }
+
+    jed_utils::PlaintextMessage message(
+        jed_utils::MessageAddress(CT2A(msg->GetSenderAddress())),
+        &recipientAddresses[0],
+        recipientAddresses.size(),
+        CT2A(msg->GetSubject()),
+        CT2A(msg->GetText()),
+        nullptr, 0, nullptr, 0,
+        &attachments[0],
+        attachments.size()
+    );
+
+    int err_no = m_pImpl->smtpClient->sendMail(message);
+    if (err_no != 0) {
+        std::ofstream s("error.txt");
+        s << m_pImpl->smtpClient->getCommunicationLog() << '\n';
+        std::string errorMessage = m_pImpl->smtpClient->getErrorMessage(err_no);
+        s << "An error occurred: " << errorMessage
+            << " (error no: " << err_no << ")" << std::endl;
+        return -1;
+    }
+
+    return 0;
+}
 
 int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg)
 {
+    if (m_nPort != 25) {
+        return SendEmailToRecipientWithOpportunisticSecureSMTPClient(sSmtpServer, msg);
+    }
+
 	// This method connects to the given SMTP server and tries to send
 	// the E-mail message.
 

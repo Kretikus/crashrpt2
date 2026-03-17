@@ -199,6 +199,8 @@ void CMFCDemoApp::OnAppAbout()
 {
 	CAboutDlg aboutDlg;
 	aboutDlg.DoModal();
+    int* p = NULL;
+    *p = 13;
 }
 
 

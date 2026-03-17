@@ -1473,7 +1473,7 @@ void CFilePreviewCtrl::ParseText()
                     if(nTabs!=0)
                         cchLineLength += nTabs*(m_cchTabLength-1);
 
-                    m_nMaxDisplayWidth = max(m_nMaxDisplayWidth, cchLineLength);
+                    m_nMaxDisplayWidth = __max(m_nMaxDisplayWidth, cchLineLength);
                     m_uNumLines++;
                     dwPrevOffset = dwOffset+i+2;
                     nTabs = 0;
@@ -1497,7 +1497,7 @@ void CFilePreviewCtrl::ParseText()
                     if(nTabs!=0)
                         cchLineLength += nTabs*(m_cchTabLength-1);
 
-                    m_nMaxDisplayWidth = max(m_nMaxDisplayWidth, cchLineLength);
+                    m_nMaxDisplayWidth = __max(m_nMaxDisplayWidth, cchLineLength);
                     m_uNumLines++;
                     dwPrevOffset = dwOffset+i+1;
                     nTabs = 0;
@@ -1566,30 +1566,30 @@ void CFilePreviewCtrl::SetupScrollbars()
 
     //	Vertical scrollbar
 
-    m_nMaxLinesPerPage = (int)min(m_uNumLines, rcClient.Height() / m_yChar);
-    m_nVScrollMax = (int)max(0, m_uNumLines-1);
-    m_nVScrollPos = (int)min(m_nVScrollPos, m_nVScrollMax-m_nMaxLinesPerPage+1);
+    m_nMaxLinesPerPage = (int)__min(m_uNumLines, rcClient.Height() / m_yChar);
+    m_nVScrollMax = (int)__max(0, m_uNumLines-1);
+    m_nVScrollPos = (int)__min(m_nVScrollPos, m_nVScrollMax-m_nMaxLinesPerPage+1);
 
     sInfo.cbSize = sizeof(SCROLLINFO);
     sInfo.fMask = SIF_PAGE | SIF_POS | SIF_RANGE;
     sInfo.nMin	= 0;
     sInfo.nMax	= m_nVScrollMax;
     sInfo.nPos	= m_nVScrollPos;
-    sInfo.nPage	= min(m_nMaxLinesPerPage, m_nVScrollMax+1);
+    sInfo.nPage	= __min(m_nMaxLinesPerPage, m_nVScrollMax+1);
     SetScrollInfo (SB_VERT, &sInfo, TRUE);
 
     //	Horizontal scrollbar
 
-    m_nMaxColsPerPage = min(m_nMaxDisplayWidth+1, rcClient.Width() / m_xChar);
-    m_nHScrollMax = max(0, m_nMaxDisplayWidth-1);
-    m_nHScrollPos = min(m_nHScrollPos, m_nHScrollMax-m_nMaxColsPerPage+1);
+    m_nMaxColsPerPage = __min(m_nMaxDisplayWidth+1, rcClient.Width() / m_xChar);
+    m_nHScrollMax = __max(0, m_nMaxDisplayWidth-1);
+    m_nHScrollPos = __min(m_nHScrollPos, m_nHScrollMax-m_nMaxColsPerPage+1);
 
     sInfo.cbSize = sizeof(SCROLLINFO);
     sInfo.fMask = SIF_POS | SIF_PAGE | SIF_RANGE;
     sInfo.nMin	= 0;
     sInfo.nMax	= m_nHScrollMax;
     sInfo.nPos	= m_nHScrollPos;
-    sInfo.nPage	= min(m_nMaxColsPerPage, m_nHScrollMax+1);
+    sInfo.nPage	= __min(m_nMaxColsPerPage, m_nHScrollMax+1);
 
     SetScrollInfo (SB_HORZ, &sInfo, TRUE);
 
@@ -1755,8 +1755,8 @@ void CFilePreviewCtrl::DoPaintText(HDC hDC)
 
     FillRect(hDC, &rcClient, (HBRUSH)GetStockObject(WHITE_BRUSH));
 
-    int iPaintBeg = max(0, m_nVScrollPos);			//only update the lines that
-    int iPaintEnd = (int)min(m_uNumLines, m_nVScrollPos + rcClient.bottom / m_yChar);		//need updating!!!!!!!!!!!!!
+    int iPaintBeg = __max(0, m_nVScrollPos);			//only update the lines that
+    int iPaintEnd = (int)__min(m_uNumLines, m_nVScrollPos + rcClient.bottom / m_yChar);		//need updating!!!!!!!!!!!!!
 
     if(rcClient.bottom % m_yChar) iPaintEnd++;
     if(iPaintEnd > m_uNumLines) iPaintEnd--;
@@ -1953,12 +1953,12 @@ LRESULT CFilePreviewCtrl::OnVScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lPara
         break;
 
     case SB_PAGEUP:
-        m_nVScrollPos -= max(1, m_nMaxLinesPerPage);
+        m_nVScrollPos -= __max(1, m_nMaxLinesPerPage);
         if(m_nVScrollPos > nOldVScrollPos) m_nVScrollPos = 0;
         break;
 
     case SB_PAGEDOWN:
-        m_nVScrollPos += max(1, m_nMaxLinesPerPage);
+        m_nVScrollPos += __max(1, m_nMaxLinesPerPage);
         break;
 
     case SB_THUMBPOSITION:

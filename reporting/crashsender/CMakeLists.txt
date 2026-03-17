@@ -33,6 +33,7 @@ include_directories(
   ${DBGHELP_INCLUDE_DIR}
   ${CMAKE_SOURCE_DIR}/thirdparty/libogg/include
   ${CMAKE_SOURCE_DIR}/thirdparty/libtheora/include
+  ${CMAKE_SOURCE_DIR}/thirdparty/CPP-SMTPClient-library/src
 )
 
 if(NOT CMAKE_CL_64)
@@ -53,6 +54,7 @@ target_link_libraries(CrashSender
   tinyxml
   libogg
   libtheora
+  smtpclient
   WS2_32.lib
   Dnsapi.lib
   wininet.lib
