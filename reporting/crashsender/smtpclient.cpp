@@ -25,6 +25,9 @@ be found in the Authors.txt file in the root of the source tree.
 
 #include <fstream>
 
+#define CR_SMTP_TYPE_FORCE_SSL 1 //!< Force SSL for SMTP connection (use SSL regardless of port number).
+#define CR_SMTP_TYPE_NEVER_USE_TLS 2 //!< Never use TLS for SMTP connection (previous behaviour).
+
 //----------------------------------------------------------
 // CEmailMessage impl
 //----------------------------------------------------------
@@ -326,7 +329,7 @@ int CSmtpClient::ResolveSmtpServerName(LPCTSTR szEmailAddress, std::map<WORD, CS
 int CSmtpClient::SendEmailToRecipientWithOpportunisticSecureSMTPClient(CString sSmtpServer, CEmailMessage* msg)
 {
     CT2A ascii(sSmtpServer);
-    if (m_nPort == 587) {
+    if (m_nSmtpType != CR_SMTP_TYPE_FORCE_SSL && m_nPort == 587) {
         m_pImpl->smtpClient = std::make_unique<jed_utils::OpportunisticSecureSMTPClient>(ascii, m_nPort);
     }
     else {
@@ -389,7 +392,7 @@ int CSmtpClient::SendEmailToRecipientWithOpportunisticSecureSMTPClient(CString s
 
 int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg)
 {
-    if (m_nPort != 25) {
+    if (m_nSmtpType != CR_SMTP_TYPE_NEVER_USE_TLS && m_nPort != 25) {
         return SendEmailToRecipientWithOpportunisticSecureSMTPClient(sSmtpServer, msg);
     }
 

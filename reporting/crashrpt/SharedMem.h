@@ -120,6 +120,7 @@ struct CRASH_DESCRIPTION
 	SIZE  m_DesiredFrameSize;      // Video frame size.
 	HWND m_hWndVideoParent;        // Parent window for video recording dialog.
 	BOOL m_bClientAppCrashed;      // If TRUE, the client app has crashed; otherwise the client has exited without crash.
+    int  m_nSmtpType;              // SMTP type. 0 - default, 1 - force SSL, 2 - never use TLS (previous behaviour).
 };
 
 #define SHARED_MEM_MAX_SIZE 10*1024*1024   /* 10 MB */

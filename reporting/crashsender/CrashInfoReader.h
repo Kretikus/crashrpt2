@@ -298,6 +298,7 @@ public:
     CString     m_sInvParamFunction;    // Invalid parameter function.
     CString     m_sInvParamFile;        // Invalid parameter file.
     UINT        m_uInvParamLine;        // Invalid parameter line.
+    int         m_nSmtpType;            // SMTP type. 0 - default, 1 - force SSL, 2 - never use TLS (previous behaviour).
 
     /* Member functions */
 

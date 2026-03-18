@@ -73,7 +73,6 @@ public:
 
 	// Sets E-mail body.
 	void SetText(LPCTSTR szText);
-
 private:
 
     CString m_sSubject;   // Subject
@@ -114,6 +113,11 @@ public:
 	// and message is sent in a worker thread.
 	// Returns zero on success, otherwise non-zero.
     int SendEmailAssync(CEmailMessage* msg,  AssyncNotification* scn);
+
+    void SetSmtpType(int nSmtpType) {
+        m_nSmtpType = nSmtpType;
+    }
+
 
 protected:
 
@@ -162,6 +166,7 @@ protected:
 	CString m_sPassword;     // Password (used for SMTP authentication).
 	CEmailMessage* m_msg;    // Pointer to E-mail message being sent.
     AssyncNotification* m_scn; // Synchronization object.
+    int m_nSmtpType = 0; // SMTP type (0 - default, 1 - secure SMTP, 2 - secure SMTP with opportunistic TLS)
 
     class Impl;
     std::unique_ptr<Impl> m_pImpl; // Pimpl idiom to hide implementation details.

@@ -575,6 +575,7 @@ int CCrashInfoReader::UnpackCrashDescription(CErrorReportInfo& eri)
     m_DesiredFrameSize = m_pCrashDesc->m_DesiredFrameSize;
 	m_hWndVideoParent = m_pCrashDesc->m_hWndVideoParent;
 	m_bClientAppCrashed = m_pCrashDesc->m_bClientAppCrashed;
+    m_nSmtpType = m_pCrashDesc->m_nSmtpType;
 
     DWORD dwOffs = m_pCrashDesc->m_wSize;
     while(dwOffs<m_pCrashDesc->m_dwTotalSize)

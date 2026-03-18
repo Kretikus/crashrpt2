@@ -45,6 +45,7 @@ CCrashHandler::CCrashHandler()
     m_MinidumpType = MiniDumpNormal;
     m_nSmtpPort = 25;
     m_nSmtpProxyPort = 2525;
+    m_nSmtpType = 0;
     memset(&m_uPriorities, 0, 3*sizeof(UINT));
     m_lpfnCallback = NULL;
 	m_bAddScreenshot = FALSE;
@@ -99,7 +100,9 @@ int CCrashHandler::Init(
 		LPCTSTR lpcszSmtpLogin,
 		LPCTSTR lpcszSmtpPassword,
 		int nRestartTimeout,
-		int nMaxReportsPerDay)
+		int nMaxReportsPerDay,
+        int nSmtpType
+    )
 {
 	// This method initializes configuration parameters,
 	// creates shared memory buffer and saves the configuration parameters there,
@@ -204,6 +207,7 @@ int CCrashHandler::Init(
     // Save E-mail recipient(s) address
     m_sEmailTo = lpcszTo;
     m_nSmtpPort = 25;
+    m_nSmtpType = nSmtpType;
 
     // Check for custom SMTP port
     int pos = m_sEmailTo.ReverseFind(':');
@@ -578,13 +582,14 @@ CRASH_DESCRIPTION* CCrashHandler::PackCrashInfoIntoSharedMem(CSharedMem* pShared
     m_pTmpCrashDesc->m_dwSmtpProxyServerOffs = PackString(m_sSmtpProxyServer);
 	m_pTmpCrashDesc->m_dwSmtpLoginOffs = PackString(m_sSmtpLogin);
 	m_pTmpCrashDesc->m_dwSmtpPasswordOffs = PackString(m_sSmtpPassword);
+    m_pTmpCrashDesc->m_nSmtpType = m_nSmtpType;
 
 	// Pack file items
 	std::map<CString, FileItem>::iterator fit;
 	for(fit=m_files.begin(); fit!=m_files.end(); fit++)
 	{
 		FileItem& fi = fit->second;
-
+            
 		// Pack this file item into shared mem.
 		PackFileItem(fi);
 	}

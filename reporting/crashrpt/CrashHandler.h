@@ -127,7 +127,9 @@ public:
 		__in_opt LPCTSTR lpcszSmtpLogin = NULL,
 		__in_opt LPCTSTR lpcszSmtpPassword = NULL,
 		__in_opt int nRestartTimeout = 0,
-		__in_opt int nMaxReportsPerDay = 0);
+		__in_opt int nMaxReportsPerDay = 0,
+        __in_opt int nSmtpType = 0
+        );
 
 	// Returns TRUE if object was initialized.
     BOOL IsInitialized();
@@ -305,6 +307,7 @@ public:
     int m_nSmtpProxyPort;          // SMTP proxy port.
 	CString m_sSmtpLogin;           // SMTP login.
 	CString m_sSmtpPassword;        // SMTP password.
+    int m_nSmtpType;                // SMTP type. 0 - default, 1 - force SSL, 2 - never use TLS (previous behaviour).
     CString m_sEmailSubject;       // E-mail subject.
     CString m_sEmailText;          // E-mail text.
     UINT m_uPriorities[3];         // Delivery priorities.

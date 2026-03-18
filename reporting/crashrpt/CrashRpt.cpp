@@ -104,7 +104,8 @@ CRASHRPTAPI(int) crInstallW(CR_INSTALL_INFOW* pInfo)
 		ptszSmtpLogin,
 		ptszSmtpPassword,
 		pInfo->nRestartTimeout,
-		pInfo->nMaxReportsPerDay
+		pInfo->nMaxReportsPerDay,
+        pInfo->nSmtpType
         );
 
     if(nInitResult!=0)
@@ -209,7 +210,8 @@ CRASHRPTAPI(int) crInstallA(CR_INSTALL_INFOA* pInfo)
 		ptszSmtpLogin,
 		ptszSmtpPassword,
 		pInfo->nRestartTimeout,
-		pInfo->nMaxReportsPerDay
+		pInfo->nMaxReportsPerDay,
+        pInfo->nSmtpType
         );
 
     if(nInitResult!=0)

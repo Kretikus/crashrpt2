@@ -2425,6 +2425,7 @@ BOOL CErrorReportSender::SendOverSMTP()
 
 	// Set SMTP login and password
 	m_SmtpClient.SetAuthParams(m_CrashInfo.m_sSmtpLogin, m_CrashInfo.m_sSmtpPassword);
+    m_SmtpClient.SetSmtpType(m_CrashInfo.m_nSmtpType);
 
     // Send mail assynchronously
     int res = m_SmtpClient.SendEmailAssync(&m_EmailMsg, &m_Assync);

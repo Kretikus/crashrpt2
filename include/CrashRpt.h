@@ -500,6 +500,12 @@ crSetCrashCallbackA(
 #define CR_INST_ALLOW_ATTACH_MORE_FILES		 0x400000 //!< Adds an ability for user to attach more files to crash report by clicking "Attach More File(s)" item from context menu of Error Report Details dialog.
 #define CR_INST_AUTO_THREAD_HANDLERS         0x800000 //!< If this flag is set, installs exception handlers for newly created threads automatically.
 
+
+#define CR_SMTP_TYPE_NORMAL 0 //!< Normal SMTP connection (SSL depending on port 25 without TLS, 587 StartTLS, 465 TLS).
+#define CR_SMTP_TYPE_FORCE_SSL 1 //!< Force SSL for SMTP connection (use SSL regardless of port number).
+#define CR_SMTP_TYPE_NEVER_USE_TLS 2 //!< Never use TLS for SMTP connection (previous behaviour).
+
+
 /*! \ingroup CrashRptStructs
 *  \struct CR_INSTALL_INFOW()
 *  \brief This structure defines the general information used by crInstallW() function.
@@ -755,6 +761,7 @@ typedef struct tagCR_INSTALL_INFOW
 	LPCWSTR pszSmtpPassword;        //!< Password used for SMTP authentication when sending error report as E-mail.
 	int nRestartTimeout;            //!< Timeout for application restart.
 	int nMaxReportsPerDay;          //!< Maximum number of crash reports that will be sent per calendar day.
+    int nSmtpType;                  //!< SMTP type. 0 - default, 1 - SMTP with SSL/TLS support (available since v.1.3.1).
 }
 CR_INSTALL_INFOW;
 
@@ -790,6 +797,7 @@ typedef struct tagCR_INSTALL_INFOA
 	LPCSTR pszSmtpPassword;        //!< Password used for SMTP authentication when sending error report as E-mail.
 	int nRestartTimeout;           //!< Timeout for application restart.
 	int nMaxReportsPerDay;         //!< Maximum number of crash reports that will be sent per calendar day.
+    int nSmtpType;                  //!< SMTP type. 0 - default, 1 - SMTP with SSL/TLS support (available since v.1.3.1).
 }
 CR_INSTALL_INFOA;
 
